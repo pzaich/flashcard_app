@@ -2,9 +2,10 @@ require './flashcard.rb'
 
 module FlashcardApp
   class FlashcardReader
-    def initialize(filename)
+    def initialize(filename, quiz_length = nil)
       @list = load_cards(filename)
       @location = 0
+      @quiz_length = quiz_length || @list.length
     end
 
     def load_cards(filename)
@@ -17,7 +18,7 @@ module FlashcardApp
     end
 
     def out_of_cards?
-      @location == @list.length
+      @location == @quiz_length
     end
 
     def advance!
@@ -25,38 +26,42 @@ module FlashcardApp
     end
 
     def guess(term_guessed)
-      determine_advance(respond_to_guess(term_guessed))
-      write_next
-    end
-
-    def respond_to_guess(term_guessed)
-      guess_correct = current_flashcard.term?(term_guessed)
-      guess_correct ? (puts "Correct!\n") : (puts "Wrong, Try Again.\n")
-      guess_correct
+      determine_advance(current_flashcard.term?(term_guessed))
     end
 
     def determine_advance(guessed_right)
       if guessed_right
+        current_flashcard.correct!
         advance!
+        "Correct!\n" + write_next
       elsif current_flashcard.attempts == 3
-        puts "Nevermind! Attempted 3 times. The term is #{current_flashcard.term}. Moving on...\n"
+        previous_term = current_flashcard.term
         advance!
+        wrong + "Nevermind! Attempted 3 times. The term is #{previous_term}. Moving on...\n" + write_next
+      else
+        wrong
       end
     end
-      # if current_flashcard.term?(term_guessed)
-      #   advance!
-      #   "Correct!\n" + print_card_def
-      # elsif current_flashcard.attempts == 3
-      #   old_term = current_flashcard.term
-      #   advance!
-      #   "Wrong, Try Again.\nAttempted 3 times. The term is #{old_term}\n" + print_card_def
-      # else
-      #   "Wrong, Try Again."
-      #   end
-      # end
+
+    def wrong
+      "Wrong, Try Again.\n"
+    end
 
     def write_next
-      !out_of_cards? ? (puts "\nWhat is this definition?\n\'#{current_flashcard.definition}\'") : (puts "Out of cards!")
+      !out_of_cards? ? "\nWhat is this definition?\n\'#{current_flashcard.definition}\'" : "Out of cards!"
+    end
+
+    def number_correct
+      @list.select { |card| card.correctly_guessed? }.length
+    end
+
+    def attempt_distribution
+      distribution_array = []
+      3.times do |i|
+        distribution_array << @list.select {|card| card.attempts == i + 1 && card.correctly_guessed?}.map { |card| card.term }
+      end
+      distribution_array << @list.select {|card| card.attempts == 3 && !card.correctly_guessed?}.map { |card| card.term }
+      distribution_array
     end
 
   end

@@ -23,17 +23,19 @@ describe 'flash_card_reader methods' do
     @flashcard_reader.current_flashcard.definition.should eq "A command that appends two or more objects together."
   end
 
-  it "should guess the current definition" do
-    @flashcard_reader.guess("and").should eq "Wrong, Try Again."
-    @flashcard_reader.guess("class").should eq "Wrong, Try Again."
-    @flashcard_reader.guess("alias").should eq "Correct!\n\nWhat is this definition?\n'A command that appends two or more objects together.'"
+  it "should say wrong answer when the answer is incorrect" do
+    @flashcard_reader.guess("and").should eq "Wrong, Try Again.\n"
+  end
+
+  it "should move to the next card if the answer is correct" do
+    @flashcard_reader.guess("alias")
     @flashcard_reader.guess("and").should eq "Correct!\n\nWhat is this definition?\n'Designates code that must be run unconditionally at the beginning of the program before any other.'"
   end
 
-  it "should guess the current definition and move on after 3 guesses" do
-    @flashcard_reader.guess("and").should eq "Wrong, Try Again."
-    @flashcard_reader.guess("class").should eq "Wrong, Try Again."
-    @flashcard_reader.guess("bubbleyum").should eq "Wrong, Try Again.\nAttempted 3 times. The term is alias\n\nWhat is this definition?\n'A command that appends two or more objects together.'"
+  it "should reveal the current term and move on after 3 incorrect guesses" do
+    @flashcard_reader.guess("and")
+    @flashcard_reader.guess("class")
+    @flashcard_reader.guess("bubbleyum")
     @flashcard_reader.guess("and").should eq "Correct!\n\nWhat is this definition?\n'Designates code that must be run unconditionally at the beginning of the program before any other.'"
   end
 
@@ -49,3 +51,43 @@ describe 'flash_card_reader methods' do
   end
 
 end
+
+describe "flash card new instance defaults" do
+  before :each do
+    @flashcard_reader = FlashcardApp::FlashcardReader.new('./flashcards.txt', 12)
+    12.times {@flashcard_reader.advance!}
+  end
+
+  it "should be out of cards" do
+    @flashcard_reader.out_of_cards?.should be true
+  end
+end
+
+describe "return accurate specs after flashcards are complete" do
+  before :each do
+    @flashcard_reader = FlashcardApp::FlashcardReader.new('./flashcards.txt', 10)
+    @flashcard_reader.guess("alias")
+    @flashcard_reader.guess("and")
+    @flashcard_reader.guess("and")
+    @flashcard_reader.guess("BEGIN")
+    @flashcard_reader.guess("and")
+    @flashcard_reader.guess("and")
+    @flashcard_reader.guess("begin")
+    18.times {@flashcard_reader.guess("a"*5)}
+  end
+
+  it "should give us the number of correct answers" do
+    @flashcard_reader.number_correct.should eq(4)
+  end
+
+  it "should give us the an array of attempts" do
+    @flashcard_reader.attempt_distribution[0].should eq ['alias','and']
+    @flashcard_reader.attempt_distribution[1].should eq ['BEGIN']
+    @flashcard_reader.attempt_distribution[2].should eq ['begin']
+    @flashcard_reader.attempt_distribution[3][0].should eq 'break'
+    @flashcard_reader.attempt_distribution[3][-1].should eq 'do'
+  end
+
+end
+
+

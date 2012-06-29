@@ -38,6 +38,15 @@ describe "create a flashcard object" do
     @flashcard.attempts.should eq 1
   end
 
+  it "should have a flag for whether the term has been guessed correctly the first time" do
+    @flashcard.correctly_guessed?.should eq(false)
+  end
+
+  it "should equal true when it has been correctly guessed" do
+    @flashcard.correct!
+    @flashcard.correctly_guessed?.should eq(true)
+  end
+
 end
 
 describe 'create a flashcard from a tab separated string' do

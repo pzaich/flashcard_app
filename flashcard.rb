@@ -5,6 +5,7 @@ module FlashcardApp
       @term = term
       @definition = definition
       @attempts = 0
+      @guessed = false
     end
 
     def self.from_string(str)
@@ -19,6 +20,14 @@ module FlashcardApp
     def term?(term_guess)
       increment!
       term_guess == @term
+    end
+
+    def correctly_guessed?
+      @guessed
+    end
+
+    def correct!
+      @guessed = true
     end
   end
 end
