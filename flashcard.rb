@@ -13,21 +13,21 @@ module FlashcardApp
       self.new(ar[0],ar[1])
     end
 
-    def increment!
-      @attempts += 1
-    end
-
-    def term?(term_guess)
-      increment!
-      term_guess == @term
+    def guess(term_guess)
+      @attempts +=1
+      if term_guess == @term
+        @guessed = true
+        true
+      else
+        false
+      end
     end
 
     def correctly_guessed?
       @guessed
     end
 
-    def correct!
-      @guessed = true
-    end
+
+
   end
 end

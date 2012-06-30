@@ -17,21 +17,22 @@ module FlashcardApp
       @list[@location]
     end
 
+    def next_flashcard
+      advance!
+      current_flashcard
+    end
+
     def out_of_cards?
       @location == @quiz_length
     end
 
-    def advance!
-      @location += 1
-    end
 
     def guess(term_guessed)
-      determine_advance(current_flashcard.term?(term_guessed))
+      determine_advance(current_flashcard.guess(term_guessed))
     end
 
     def determine_advance(guessed_right)
       if guessed_right
-        current_flashcard.correct!
         advance!
         "Correct!\n" + write_next
       elsif current_flashcard.attempts == 3
@@ -62,6 +63,12 @@ module FlashcardApp
       end
       distribution_array << @list.select {|card| card.attempts == 3 && !card.correctly_guessed?}.map { |card| card.term }
       distribution_array
+    end
+
+    private
+
+    def advance!
+      @location += 1
     end
 
   end
