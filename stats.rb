@@ -27,5 +27,17 @@ module FlashcardApp
     def correct?(card)
       @answer[card.term]
     end
+
+    def get
+      return_ar = [[],[],[],[]]
+      @attempts.select {|key,attempt| attempt > 0}.keys.each do |key|
+        if @answer[key]
+          return_ar[@attempts[key] - 1] << key
+        else
+          return_ar[3] << key
+        end
+      end
+      return_ar
+    end
   end
 end

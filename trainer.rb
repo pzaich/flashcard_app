@@ -4,6 +4,7 @@ require './stats.rb'
 
 module FlashcardApp
   class Trainer
+    attr_reader :stats
 
     def initialize(filename, cards_in_game = nil)
       @location = 0

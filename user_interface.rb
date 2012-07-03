@@ -13,28 +13,28 @@ def run
       while !flashcard_trainer.out_of_cards?
         printf "\nguess your term: "
         input = gets.chomp
-        puts print_message(flashcard_trainer.guess(input))
+        puts print_trainer_message(flashcard_trainer.guess(input))
       end
-      puts "\nOut of Cards!"
-      #print_stats(flashcard_reader.attempt_distribution)
+      puts "\nOut of Cards! Your Stats for this session:"
+      print_stats(flashcard_trainer.stats.get)
     else
       puts "Invalid command"
     end
   end
 end
 
-# def print_stats(dist_ar)
-#   dist_ar.each_with_index do |term_list, index|
-#     unless term_list.empty?
-#       puts "-----------"
-#       index < 3 ? (puts  ("Guessed Correctly after #{index + 1 } guess(es):"))  : (puts ("You missed these questions after all 3 guesses:"))
-#       term_list.each {|term| puts term}
-#       puts "-----------"
-#     end
-#   end
-# end
+def print_stats(dist_ar)
+      puts "-----------"
+  dist_ar.each_with_index do |term_list, index|
+    unless term_list.empty?
+      index < 3 ? (puts  ("Guessed Correctly after #{index + 1 } guess(es):"))  : (puts ("You missed these questions after all 3 guesses:"))
+      term_list.each {|term| puts term}
+      puts "-----------"
+    end
+  end
+end
 
-def print_message(message_hash)
+def print_trainer_message(message_hash)
   compiled_string = ""
   if message_hash[:response]
     compiled_string = "Correct!\n"
